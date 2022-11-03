@@ -51,7 +51,10 @@ void setGhostPath(int x , int y, int player)
             break;
 
         case 'R':
-            
+            for (int i = y; i > 0; i--)
+            {
+                ghostPath[i][x] = true;
+            }
             break;
         
         case 'N':
@@ -87,6 +90,10 @@ void setGhostPath(int x , int y, int player)
             break;
 
         case 'R':
+            for (int i = y; i < 8; i++)
+            {
+                ghostPath[i][x] = true;
+            }
             break;
         
         case 'N':
@@ -266,7 +273,7 @@ void getCOFromInput(int player)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
     //cin >> selectedFigXY;
-    selectedFigXY = "d7";
+    selectedFigXY = "h8";
 
     setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), 2);
 }
