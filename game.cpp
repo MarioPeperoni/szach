@@ -76,11 +76,11 @@ void setGhostPath(int x , int y, int player)
         switch (p2Fig[y][x])
         {
         case 'P':
-            if (y - 1 <= 7)
+            if (y + 1 <= 7)
             {
                 ghostPath[y+1][x] = true;
             }
-            if (y - 2 <= 7)
+            if (y + 2 <= 7)
             {
                 ghostPath[y+2][x] = true;
             }
@@ -265,9 +265,10 @@ int inputTranslator(char input, bool letters)
 void getCOFromInput(int player)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
-    cin >> selectedFigXY;
+    //cin >> selectedFigXY;
+    selectedFigXY = "d7";
 
-    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), 1);
+    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), 2);
 }
 
 int main()
