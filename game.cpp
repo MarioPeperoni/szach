@@ -8,7 +8,7 @@ char p1Fig[8][8];
 char p2Fig[8][8];
 bool ghostPath[8][8];
 int playerPointer[2];
-string uiText[8] = {"test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8"};
+string boardNum[8] = {"8", "7", "6", "5", "4", "3", "2", "1"};
 
 string makeSpace(int size)
 {
@@ -37,16 +37,16 @@ void setGhostPath(int x , int y, int player)
 {
     if (player == 1)    //Player 1 
     {
-        switch (p1Fig[x][y])
+        switch (p1Fig[y][x])
         {
         case 'P':
-            if (x - 1 >= 0)
+            if (y - 1 >= 0)
             {
-                ghostPath[x-1][y] = true;
+                ghostPath[y-1][x] = true;
             }
-            if (x - 2 >= 0)
+            if (y - 2 >= 0)
             {
-                ghostPath[x-2][y] = true;
+                ghostPath[y-2][x] = true;
             }
             break;
 
@@ -55,6 +55,7 @@ void setGhostPath(int x , int y, int player)
             break;
         
         case 'N':
+             
             break;
 
         case 'B':
@@ -72,16 +73,16 @@ void setGhostPath(int x , int y, int player)
     }
     else                //Player 2
     {
-        switch (p2Fig[x][y])
+        switch (p2Fig[y][x])
         {
         case 'P':
-            if (x - 1 <= 7)
+            if (y - 1 <= 7)
             {
-                ghostPath[x+1][y] = true;
+                ghostPath[y+1][x] = true;
             }
-            if (x - 2 <= 7)
+            if (y - 2 <= 7)
             {
-                ghostPath[x+2][y] = true;
+                ghostPath[y+2][x] = true;
             }
             break;
 
@@ -119,9 +120,9 @@ void renderBoard(int playerID, bool renderPath)    //Render board
         for (int j = 0; j < 8; j++) //Render figures
         {
             cout << "║ ";
-            if (p1Fig[i][j] == 'E' && p2Fig[i][j] == 'E')
+            if (p1Fig[i][j] == 'E' && p2Fig[i][j] == 'E')   //If box is empty
             {
-                if (renderPath == true && ghostPath[i][j] == true)
+                if (renderPath == true && ghostPath[i][j] == true)  //Renders path of figure
                 {
                     cout << "#";
                 }
@@ -130,26 +131,26 @@ void renderBoard(int playerID, bool renderPath)    //Render board
                     cout << " ";
                 }
             }
-            if (p1Fig[i][j] == 'E' && p2Fig[i][j] != 'E')
+            if (p1Fig[i][j] == 'E' && p2Fig[i][j] != 'E')   //If player 2 have a figure in box 
             {
                 cout << p2Fig[i][j];
             }
-            if (p1Fig[i][j] != 'E' && p2Fig[i][j] == 'E')
+            if (p1Fig[i][j] != 'E' && p2Fig[i][j] == 'E') //If player 1 have a figure in box 
             {
                 cout << p1Fig[i][j];
             }
             cout << " ║";
         }
-        cout << makeSpace(2) << uiText[i];
+        cout << makeSpace(1) << boardNum[i];    //Draw board numbers
         cout << endl;
         for (int j = 0; j < 8; j++)
         {
-            cout << "╚═══╝";
+            cout << "╚═══╝";    //Draw lower frame
         }
-        
-        
+
         cout << endl;
     }
+    cout << "  A    B    C    D    E    F    G    H  " << endl; //Draw board letters
     
 }
 
@@ -196,13 +197,77 @@ void initGame()
     p1Fig[0][4] = 'K';
 }
 
+int inputTranslator(char input, bool letters)
+{
+    if (letters)
+    {
+        switch (input)
+        {
+        case 'a':
+            return 0;
+            break;
+        case 'b':
+            return 1;
+            break;
+        case 'c':
+            return 2;
+            break;
+        case 'd':
+            return 3;
+            break;
+        case 'e':
+            return 4;
+            break;
+        case 'f':
+            return 5;
+            break;
+        case 'g':
+            return 6;
+            break;
+        case 'h':
+            return 7;
+            break;
+        } 
+    }
+    else
+    {
+        switch (input)
+        {
+        case '1':
+            return 7;
+            break;
+        case '2':
+            return 6;
+            break;
+        case '3':
+            return 5;
+            break;
+        case '4':
+            return 4;
+            break;
+        case '5':
+            return 3;
+            break;
+        case '6':
+            return 2;
+            break;
+        case '7':
+            return 1;
+            break;
+        case '8':
+            return 0;
+            break;
+        }
+    }
+    return 0;
+}
+
 void getCOFromInput(int player)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
     cin >> selectedFigXY;
-    playerPointer[0] = (int)selectedFigXY[0] - 49;
-    playerPointer[1] = (int)selectedFigXY[1] - 49;
-    setGhostPath((int)selectedFigXY[0] - 49, (int)selectedFigXY[1] - 49, player);
+
+    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), 1);
 }
 
 int main()
