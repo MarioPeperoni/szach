@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -9,6 +11,7 @@ char p2Fig[8][8];
 bool ghostPath[8][8];
 int playerPointer[2];
 string boardNum[8] = {"8", "7", "6", "5", "4", "3", "2", "1"};
+int currentPlayerID = 1;
 
 string makeSpace(int size)
 {
@@ -84,6 +87,7 @@ void setGhostPath(int x , int y, int player)
             break;
         
         default:
+            
             break;
         }
     }
@@ -138,12 +142,13 @@ void setGhostPath(int x , int y, int player)
             break;
         
         default:
+            
             break;
         }
     }
 }
 
-void renderBoard(int playerID, bool renderPath)    //Render board
+void renderBoard(bool renderPath)    //Render board
 {
     system("clear");
     for (int i = 0; i < 8; i++)
@@ -178,6 +183,11 @@ void renderBoard(int playerID, bool renderPath)    //Render board
             cout << " ║";
         }
         cout << makeSpace(1) << boardNum[i];    //Draw board numbers
+        if (i == 4)
+        {
+            cout << makeSpace(6) << "Current player: " << currentPlayerID;
+        }
+        
         cout << endl;
         for (int j = 0; j < 8; j++)
         {
@@ -188,49 +198,6 @@ void renderBoard(int playerID, bool renderPath)    //Render board
     }
     cout << "  A    B    C    D    E    F    G    H  " << endl; //Draw board letters
     
-}
-
-void initGame()
-{
-    clearGhostPath();   //Ghost path init
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            p1Fig[i][j] = 'E';
-            p2Fig[i][j] = 'E';
-        }
-        
-    }
-
-    //P1 init
-    for (int i = 0; i < 8; i++)
-    {
-        p1Fig[6][i] = 'P';
-    }
-    p1Fig[7][0] = 'R';
-    p1Fig[7][7] = 'R';
-    p1Fig[7][1] = 'N';
-    p1Fig[7][6] = 'N';
-    p1Fig[7][2] = 'B';
-    p1Fig[7][5] = 'B';
-    p1Fig[7][3] = 'Q';
-    p1Fig[7][4] = 'K';
-
-
-    //P2 init
-    for (int i = 0; i < 8; i++)
-    {
-        p2Fig[1][i] = 'P';
-    }
-    p2Fig[0][0] = 'R';
-    p2Fig[0][7] = 'R';
-    p2Fig[0][1] = 'N';
-    p2Fig[0][6] = 'N';
-    p1Fig[0][2] = 'B';
-    p1Fig[0][5] = 'B';
-    p1Fig[0][3] = 'Q';
-    p1Fig[0][4] = 'K';
 }
 
 int inputTranslator(char input, bool letters)
@@ -301,25 +268,98 @@ int inputTranslator(char input, bool letters)
 void getCOFromInput(int player)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
-    //cin >> selectedFigXY;
-    selectedFigXY = "g8";
+    cin >> selectedFigXY;
+    //selectedFigXY = "g8";
 
-    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), 2);
+    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), player);
+}
+
+void graphicRunnerloop()
+{
+    while(true)
+    {
+        renderBoard(true);
+        sleep(1);
+        renderBoard(false);
+        sleep(1);
+    }
+}
+
+void playerInputLoop()
+{
+    while (true)
+    {
+        getCOFromInput(currentPlayerID);
+        sleep(3);
+        clearGhostPath();
+        if (currentPlayerID == 2)
+        {
+            currentPlayerID = 1;
+        }
+        else
+        {
+            currentPlayerID = 2;
+        }
+          
+    }
+    
+}
+
+void initGame()
+{
+    clearGhostPath();   //Ghost path init
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            p1Fig[i][j] = 'E';
+            p2Fig[i][j] = 'E';
+        }
+        
+    }
+
+    //P1 init
+    for (int i = 0; i < 8; i++)
+    {
+        p1Fig[6][i] = 'P';
+    }
+    p1Fig[7][0] = 'R';
+    p1Fig[7][7] = 'R';
+    p1Fig[7][1] = 'N';
+    p1Fig[7][6] = 'N';
+    p1Fig[7][2] = 'B';
+    p1Fig[7][5] = 'B';
+    p1Fig[7][3] = 'Q';
+    p1Fig[7][4] = 'K';
+
+
+    //P2 init
+    for (int i = 0; i < 8; i++)
+    {
+        p2Fig[1][i] = 'P';
+    }
+    p2Fig[0][0] = 'R';
+    p2Fig[0][7] = 'R';
+    p2Fig[0][1] = 'N';
+    p2Fig[0][6] = 'N';
+    p1Fig[0][2] = 'B';
+    p1Fig[0][5] = 'B';
+    p1Fig[0][3] = 'Q';
+    p1Fig[0][4] = 'K';
 }
 
 int main()
 {
     initGame();
-    getCOFromInput(1);
-    while (true)
+    renderBoard(true);
+    thread graphicRunnerThread(graphicRunnerloop);
+    thread playerInputThread(playerInputLoop);
+    for (int i = 1; i <= 2; i++)
     {
-        renderBoard(1 , true);
-        sleep(1);
-        renderBoard(1, false);
-        sleep(1);
+        getCOFromInput(i);
     }
-
-    //renderBoard(1 , true);
     
+    graphicRunnerThread.join();
+    playerInputThread.join();
     return 0;
 }
