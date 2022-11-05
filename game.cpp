@@ -73,14 +73,6 @@ void setGhostPath(int x , int y, int player)
             break;
         
         case 'N':
-            if (y - 1 >= 0)
-            {
-                ghostPath[y-1][x] = true;
-            }
-            if (y - 2 >= 0)
-            {
-                ghostPath[y-2][x] = true;
-            }
             if (y - 2 >= 0 && x - 1 >= 0)
             {
                 ghostPath[y-2][x-1] = true;
@@ -99,6 +91,39 @@ void setGhostPath(int x , int y, int player)
             break;
         
         case 'K':
+            if (y - 1 >= 0) //In front
+            {
+                ghostPath[y - 1][x] = true;
+            }
+            if (y + 1 <= 7) //Back
+            {
+                ghostPath[y + 1][x] = true;
+            }
+            if (x - 1 >= 0) //Left
+            {
+                ghostPath[y][x - 1] = true;
+            }
+            if (x + 1 <= 7) //Right
+            {
+                ghostPath[y][x + 1] = true;
+            }
+            if (y - 1 >= 0 && x - 1 >= 0)   //Front Left
+            {
+                ghostPath[y - 1][x - 1] = true;
+            }
+            if (y + 1 <= 7 && x + 1 <= 8)   //Back Right
+            {
+                ghostPath[y + 1][x + 1] = true;
+            }
+            if (y - 1 >= 0 && x + 1 <= 8)   //Front Right
+            {
+                ghostPath[y - 1][x + 1] = true;
+            }
+            if (y + 1 <= 7 && x - 1 >= 0)    //Back Left
+            {
+                ghostPath[y - 1][x - 1] = true;
+            }
+            canMove = true;
             break;
         
         default:
@@ -131,14 +156,6 @@ void setGhostPath(int x , int y, int player)
             break;
         
         case 'N':
-            if (y + 1 <= 7)
-            {
-                ghostPath[y+1][x] = true;
-            }
-            if (y + 2 <= 7)
-            {
-                ghostPath[y+2][x] = true;
-            }
             if (y + 2 <= 7 && x - 1 >= 0)
             {
                 ghostPath[y+2][x-1] = true;
@@ -157,6 +174,39 @@ void setGhostPath(int x , int y, int player)
             break;
         
         case 'K':
+            if (y - 1 >= 0) //In front
+            {
+                ghostPath[y - 1][x] = true;
+            }
+            if (y + 1 <= 7) //Back
+            {
+                ghostPath[y + 1][x] = true;
+            }
+            if (x - 1 >= 7) //Left
+            {
+                ghostPath[y][x - 1] = true;
+            }
+            if (x + 1 <= 7) //Right
+            {
+                ghostPath[y][x + 1] = true;
+            }
+            if (y - 1 >= 0 && x - 1 >= 0)   //Front Left
+            {
+                ghostPath[y - 1][x - 1] = true;
+            }
+            if (y + 1 <= 7 && x + 1 <= 7)   //Back Right
+            {
+                ghostPath[y + 1][x + 1] = true;
+            }
+            if (y - 1 >= 0 && x + 1 <= 8)   //Front Right
+            {
+                ghostPath[y - 1][x + 1] = true;
+            }
+            if (y + 1 <= 7 && x - 1 >= 0)    //Back Left
+            {
+                ghostPath[y - 1][x - 1] = true;
+            }
+            canMove = true;
             break;
         
         default:
@@ -330,10 +380,12 @@ void getCOFromInput(int player, bool playerMove)  //Get coordinates from keyboar
     cin >> selectedFigXY;
     if (playerMove && canMove)
     {
+        //selectedFigXY = "e2";
         movePiece(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
     }
     else
     {
+        //selectedFigXY = "e1";
         playerPointer[0] = inputTranslator(selectedFigXY[0], true);
         playerPointer[1] = inputTranslator(selectedFigXY[1], false);
         setGhostPath(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
