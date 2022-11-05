@@ -18,8 +18,8 @@ char p2Fig[8][8];
 bool ghostPath[8][8];
 int playerPointer[2];
 int currentPlayerID = 1;
-int settingsThemeSetId = 0;
-theme themeSet[2];
+int settingsThemeSetId = 4;
+theme themeSet[5];
 
 string makeSpace(int size)
 {
@@ -334,7 +334,11 @@ void playerInputLoop()
 
 void initGame()
 {
-    themeSet[0] = (theme){.bgColor[0] = "42", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};
+    themeSet[0] = (theme){.bgColor[0] = "42", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};    //Green yellow
+    themeSet[1] = (theme){.bgColor[0] = "44", .bgColor[1] = "46", .p1Color = "40", .p2Color = "30"};    //Blue cyan
+    themeSet[2] = (theme){.bgColor[0] = "43", .bgColor[1] = "45", .p1Color = "40", .p2Color = "30"};    //Yellow magenta
+    themeSet[3] = (theme){.bgColor[0] = "40", .bgColor[1] = "47", .p1Color = "40", .p2Color = "30"};    //White Black
+    themeSet[4] = (theme){.bgColor[0] = "41", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};
 
     clearGhostPath();   //Ghost path init
     for (int i = 0; i < 8; i++)
