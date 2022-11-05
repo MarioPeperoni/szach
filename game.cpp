@@ -338,7 +338,7 @@ void initGame()
     themeSet[1] = (theme){.bgColor[0] = "44", .bgColor[1] = "46", .p1Color = "40", .p2Color = "30"};    //Blue cyan
     themeSet[2] = (theme){.bgColor[0] = "43", .bgColor[1] = "45", .p1Color = "40", .p2Color = "30"};    //Yellow magenta
     themeSet[3] = (theme){.bgColor[0] = "40", .bgColor[1] = "47", .p1Color = "40", .p2Color = "30"};    //White Black
-    themeSet[4] = (theme){.bgColor[0] = "41", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};
+    themeSet[4] = (theme){.bgColor[0] = "41", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};    //Red Gold
 
     clearGhostPath();   //Ghost path init
     for (int i = 0; i < 8; i++)
