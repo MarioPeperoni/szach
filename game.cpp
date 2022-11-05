@@ -13,13 +13,17 @@ struct theme
     string p2Color;
 };
 
+//Player figure map
 char p1Fig[8][8];
 char p2Fig[8][8];
+
 bool ghostPath[8][8];
-int playerPointer[2];
+int playerPointer[2];   //Point to selected fig
 int currentPlayerID = 1;
-int settingsThemeSetId = 4;
+int settingsThemeSetId = 0;
 theme themeSet[5];
+
+bool canMove = false;
 
 string makeSpace(int size)
 {
@@ -57,6 +61,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[y-2][x] = true;
             }
+            canMove = true;
             break;
 
         case 'R':
@@ -64,6 +69,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[i][x] = true;
             }
+            canMove = true;
             break;
         
         case 'N':
@@ -83,6 +89,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[y-2][x+1] = true;
             }
+            canMove = true;
             break;
 
         case 'B':
@@ -95,7 +102,7 @@ void setGhostPath(int x , int y, int player)
             break;
         
         default:
-            
+            canMove = false;
             break;
         }
     }
@@ -112,6 +119,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[y+2][x] = true;
             }
+            canMove = true;
             break;
 
         case 'R':
@@ -119,6 +127,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[i][x] = true;
             }
+            canMove = true;
             break;
         
         case 'N':
@@ -138,6 +147,7 @@ void setGhostPath(int x , int y, int player)
             {
                 ghostPath[y+2][x+1] = true;
             }
+            canMove = true;
             break;
 
         case 'B':
@@ -150,7 +160,7 @@ void setGhostPath(int x , int y, int player)
             break;
         
         default:
-            
+            canMove = false;
             break;
         }
     }
@@ -163,7 +173,6 @@ void renderBoard(bool renderPath, int themeID)    //Render board
     system("clear");
     for (int i = 0; i < 8; i++)
     {   
-        
         for (int j = 0; j < 8; j++)
         {
             cout << "╔═══╗";
@@ -208,13 +217,11 @@ void renderBoard(bool renderPath, int themeID)    //Render board
         {
             cout << makeSpace(6) << "Current player: " << currentPlayerID;
         }
-        
         cout << endl;
         for (int j = 0; j < 8; j++)
         {
             cout << "╚═══╝";    //Draw lower frame
         }
-
         cout << endl;
         if (themeBGIndex == 0)  //Create offset for checkerboard pattern
         {
@@ -226,7 +233,6 @@ void renderBoard(bool renderPath, int themeID)    //Render board
         }
     }
     cout << "  A    B    C    D    E    F    G    H  " << endl; //Draw board letters
-    
 }
 
 int inputTranslator(char input, bool letters)
@@ -294,11 +300,44 @@ int inputTranslator(char input, bool letters)
     return 0;
 }
 
-void getCOFromInput(int player)  //Get coordinates from keyboard input
+void movePiece(int x, int y, int player)
+{
+    char charBuff;
+    if (ghostPath[y][x])    //If path is valid
+    {
+        switch (player)
+        {
+        case 1:
+            charBuff = p1Fig[playerPointer[1]][playerPointer[0]];
+            p1Fig[playerPointer[1]][playerPointer[0]] = 'E';
+            p1Fig[y][x] = charBuff;
+            canMove = false;
+            break;
+        
+        case 2:
+            charBuff = p2Fig[playerPointer[1]][playerPointer[0]];
+            p2Fig[playerPointer[1]][playerPointer[0]] = 'E';
+            p2Fig[y][x] = charBuff;
+            canMove = false;
+            break;
+        }
+    }
+}
+
+void getCOFromInput(int player, bool playerMove)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
     cin >> selectedFigXY;
-    setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), player);
+    if (playerMove && canMove)
+    {
+        movePiece(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
+    }
+    else
+    {
+        playerPointer[0] = inputTranslator(selectedFigXY[0], true);
+        playerPointer[1] = inputTranslator(selectedFigXY[1], false);
+        setGhostPath(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
+    }
 }
 
 void graphicRunnerloop()
@@ -316,8 +355,12 @@ void playerInputLoop()
 {
     while (true)
     {
-        getCOFromInput(currentPlayerID);
-        sleep(3);
+        while (canMove == false)
+        {
+            getCOFromInput(currentPlayerID, false);
+        }
+        getCOFromInput(currentPlayerID, true);
+        cin.get();
         clearGhostPath();
         if (currentPlayerID == 2)
         {
@@ -327,9 +370,7 @@ void playerInputLoop()
         {
             currentPlayerID = 2;
         }
-          
     }
-    
 }
 
 void initGame()
@@ -348,7 +389,6 @@ void initGame()
             p1Fig[i][j] = 'E';
             p2Fig[i][j] = 'E';
         }
-        
     }
 
     //P1 init
