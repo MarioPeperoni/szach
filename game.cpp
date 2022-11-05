@@ -6,12 +6,20 @@
 
 using namespace std;
 
+struct theme
+{
+    string bgColor[2];
+    string p1Color;
+    string p2Color;
+};
+
 char p1Fig[8][8];
 char p2Fig[8][8];
 bool ghostPath[8][8];
 int playerPointer[2];
-string boardNum[8] = {"8", "7", "6", "5", "4", "3", "2", "1"};
 int currentPlayerID = 1;
+int settingsThemeSetId = 0;
+theme themeSet[2];
 
 string makeSpace(int size)
 {
@@ -148,11 +156,14 @@ void setGhostPath(int x , int y, int player)
     }
 }
 
-void renderBoard(bool renderPath)    //Render board
+void renderBoard(bool renderPath, int themeID)    //Render board
 {
+    string boardNum[8] = {"8", "7", "6", "5", "4", "3", "2", "1"};
+    int themeBGIndex = 0;
     system("clear");
     for (int i = 0; i < 8; i++)
-    {      
+    {   
+        
         for (int j = 0; j < 8; j++)
         {
             cout << "╔═══╗";
@@ -160,9 +171,18 @@ void renderBoard(bool renderPath)    //Render board
         cout << endl;
         for (int j = 0; j < 8; j++) //Render figures
         {
-            cout << "║ ";
+            if (themeBGIndex == 0)  //Create checkerboard pattern
+            {
+                themeBGIndex++;
+            }
+            else
+            {
+                themeBGIndex--;
+            }
+            cout << "║" << "\x1b[" << themeSet[themeID].bgColor[themeBGIndex] << "m \x1b[0m"; //Draw BG theme
             if (p1Fig[i][j] == 'E' && p2Fig[i][j] == 'E')   //If box is empty
             {
+                cout << "\e[1m\x1b[" << themeSet[themeID].bgColor[themeBGIndex] << "m";
                 if (renderPath == true && ghostPath[i][j] == true)  //Renders path of figure
                 {
                     cout << "#";
@@ -171,16 +191,17 @@ void renderBoard(bool renderPath)    //Render board
                 {
                     cout << " ";
                 }
+                cout << "\e[0m\x1b[0m";
             }
             if (p1Fig[i][j] == 'E' && p2Fig[i][j] != 'E')   //If player 2 have a figure in box 
             {
-                cout << p2Fig[i][j];
+                cout << "\e[1m\x1b[" << themeSet[themeID].p2Color << ";" << themeSet[themeID].bgColor[themeBGIndex] << "m" << p2Fig[i][j] << "\e[0m\x1b[0m";   //Draw p2 figure
             }
             if (p1Fig[i][j] != 'E' && p2Fig[i][j] == 'E') //If player 1 have a figure in box 
             {
-                cout << p1Fig[i][j];
+                cout << "\e[1m\x1b[" << themeSet[themeID].p1Color << ";" << themeSet[themeID].bgColor[themeBGIndex] << "m" << p1Fig[i][j] << "\e[0m\x1b[0m";   //Draw p1 figure
             }
-            cout << " ║";
+            cout << "\x1b["<< themeSet[themeID].bgColor[themeBGIndex] << "m \x1b[0m║";
         }
         cout << makeSpace(1) << boardNum[i];    //Draw board numbers
         if (i == 4)
@@ -195,6 +216,14 @@ void renderBoard(bool renderPath)    //Render board
         }
 
         cout << endl;
+        if (themeBGIndex == 0)  //Create offset for checkerboard pattern
+        {
+            themeBGIndex++;
+        }
+        else
+        {
+            themeBGIndex--;
+        }
     }
     cout << "  A    B    C    D    E    F    G    H  " << endl; //Draw board letters
     
@@ -269,8 +298,6 @@ void getCOFromInput(int player)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
     cin >> selectedFigXY;
-    //selectedFigXY = "g8";
-
     setGhostPath(inputTranslator(selectedFigXY[0],true), inputTranslator(selectedFigXY[1], false), player);
 }
 
@@ -278,9 +305,9 @@ void graphicRunnerloop()
 {
     while(true)
     {
-        renderBoard(true);
+        renderBoard(true, settingsThemeSetId);
         sleep(1);
-        renderBoard(false);
+        renderBoard(false, settingsThemeSetId);
         sleep(1);
     }
 }
@@ -307,6 +334,8 @@ void playerInputLoop()
 
 void initGame()
 {
+    themeSet[0] = (theme){.bgColor[0] = "42", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};
+
     clearGhostPath();   //Ghost path init
     for (int i = 0; i < 8; i++)
     {
@@ -332,7 +361,6 @@ void initGame()
     p1Fig[7][3] = 'Q';
     p1Fig[7][4] = 'K';
 
-
     //P2 init
     for (int i = 0; i < 8; i++)
     {
@@ -342,23 +370,18 @@ void initGame()
     p2Fig[0][7] = 'R';
     p2Fig[0][1] = 'N';
     p2Fig[0][6] = 'N';
-    p1Fig[0][2] = 'B';
-    p1Fig[0][5] = 'B';
-    p1Fig[0][3] = 'Q';
-    p1Fig[0][4] = 'K';
+    p2Fig[0][2] = 'B';
+    p2Fig[0][5] = 'B';
+    p2Fig[0][3] = 'Q';
+    p2Fig[0][4] = 'K';
 }
 
 int main()
 {
     initGame();
-    renderBoard(true);
+    renderBoard(true, settingsThemeSetId);
     thread graphicRunnerThread(graphicRunnerloop);
     thread playerInputThread(playerInputLoop);
-    for (int i = 1; i <= 2; i++)
-    {
-        getCOFromInput(i);
-    }
-    
     graphicRunnerThread.join();
     playerInputThread.join();
     return 0;
