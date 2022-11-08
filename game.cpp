@@ -20,13 +20,14 @@ char p2Fig[8][8];
 bool ghostPath[8][8];
 int playerPointer[2];   //Point to selected fig
 int currentPlayerID = 1;
-int settingsThemeSetId = 0;
-theme themeSet[5];
+int settingsThemeSetId = 4;
+theme themeSet[6];
 
 int p1FigCount = 0;
 int p2FigCount = 0;
 
 bool debug = false;
+bool skipMenu = false;
 bool canMove = false;
 
 string makeSpace(int size)
@@ -528,6 +529,7 @@ void initGame()
     themeSet[2] = (theme){.bgColor[0] = "43", .bgColor[1] = "45", .p1Color = "40", .p2Color = "30"};    //Yellow magenta
     themeSet[3] = (theme){.bgColor[0] = "40", .bgColor[1] = "47", .p1Color = "40", .p2Color = "30"};    //White Black
     themeSet[4] = (theme){.bgColor[0] = "41", .bgColor[1] = "43", .p1Color = "40", .p2Color = "30"};    //Red Gold
+    themeSet[5] = (theme){.bgColor[0] = "47", .bgColor[1] = "47", .p1Color = "40", .p2Color = "30"};    //Template to edit
 
     clearGhostPath();   //Ghost path init
     for (int i = 0; i < 8; i++)
@@ -570,9 +572,100 @@ void initGame()
     countPieces();  //Count pieces for UI
 }
 
+void themeMenu()
+{
+    int menuSelection = 0;
+    bool printColourHelp = false;
+    themeMenuStap:
+    system("clear");
+    cout << "████████╗██╗░░██╗███████╗███╗░░░███╗███████╗░██████╗" << endl;
+    cout << "╚══██╔══╝██║░░██║██╔════╝████╗░████║██╔════╝██╔════╝" << endl;
+    cout << "░░░██║░░░███████║█████╗░░██╔████╔██║█████╗░░╚█████╗░" << endl;
+    cout << "░░░██║░░░██╔══██║██╔══╝░░██║╚██╔╝██║██╔══╝░░░╚═══██╗" << endl;
+    cout << "░░░██║░░░██║░░██║███████╗██║░╚═╝░██║███████╗██████╔╝" << endl;
+    cout << "░░░╚═╝░░░╚═╝░░╚═╝╚══════╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░" << endl;
+    cout << endl;
+    cout << "1. Select preset " << settingsThemeSetId + 1 << makeSpace(15) << "╔═══╗" << makeSpace(3) << "╔═══╗" << endl;
+    cout << "2. Create custom preset" << makeSpace(10) << "║\x1b[" << themeSet[settingsThemeSetId].bgColor[0] << "m   \x1b[0m║" << makeSpace(3) << "║\x1b[" << themeSet[settingsThemeSetId].bgColor[1] << "m   \x1b[0m║" << endl;
+    cout << "3. Play!" << makeSpace(23) << "╚═══╝" << makeSpace(3) << "╚═══╝" << endl;
+    if (printColourHelp)
+    {
+        cout << endl;
+        cout << "\x1b[40m40 - black\x1b[0m" << "\x1b[41m41 - red\x1b[0m" << "\x1b[42m42 - green\x1b[0m" << "\x1b[43m43 - yellow\x1b[0m" << endl;
+        cout << "\x1b[44m44 - blue\x1b[0m" << "\x1b[45m45 - purple\x1b[0m" << "\x1b[46m46 - cyan\x1b[0m" << "\x1b[30;47m47 - white\x1b[0m" << endl;
+        settingsThemeSetId = 5;
+        cin >> themeSet[5].bgColor[0];
+        cin >> themeSet[5].bgColor[1];
+        printColourHelp = false;
+        goto themeMenuStap;
+    }
+    
+    cin >> menuSelection;
+    switch (menuSelection)
+    {
+    case 1:
+        if (settingsThemeSetId >= 4)
+        {
+            settingsThemeSetId = 0;
+        }
+        else
+        {
+            settingsThemeSetId++;
+        }
+        goto themeMenuStap;
+        break;
+    case 2:
+        printColourHelp = true;
+        goto themeMenuStap;
+    default:
+        break;
+    }
+}
+
+void mainMenu()
+{
+    int menuSelection = 0;
+    startOfMen:
+    system("clear");
+    cout << "░█████╗░░█████╗░██╗██╗  ░█████╗░██╗░░██╗███████╗░██████╗░██████╗" << endl;
+    cout << "██╔══██╗██╔══██╗██║██║  ██╔══██╗██║░░██║██╔════╝██╔════╝██╔════╝" << endl;
+    cout << "███████║██║░░╚═╝██║██║  ██║░░╚═╝███████║█████╗░░╚█████╗░╚█████╗░" << endl;
+    cout << "██╔══██║██║░░██╗██║██║  ██║░░██╗██╔══██║██╔══╝░░░╚═══██╗░╚═══██╗" << endl;
+    cout << "██║░░██║╚█████╔╝██║██║  ╚█████╔╝██║░░██║███████╗██████╔╝██████╔╝" << endl;
+    cout << "╚═╝░░╚═╝░╚════╝░╚═╝╚═╝  ░╚════╝░╚═╝░░╚═╝╚══════╝╚═════╝░╚═════╝░" << endl;
+    cout << endl;
+    cout << "Main menu" << endl;
+    cout << "1. Start game" << endl;
+    cout << "2. Theme options" << endl;
+    cout << "3. Debug toggle " << debug << endl;
+    cout << "4. Exit" << endl;
+    cin >> menuSelection;
+    switch (menuSelection)
+    {
+    case 1:
+        break;
+    case 2:
+        themeMenu();
+        break;
+    case 3:
+        debug = !debug;
+        goto startOfMen;
+        break;
+    case 4:
+        break;
+    default:
+        goto startOfMen;
+        break;
+    }
+}
+
 int main()
 {
     initGame();
+    if (!skipMenu)
+    {
+        mainMenu();
+    }
     renderBoard(true, settingsThemeSetId);
     thread graphicRunnerThread(graphicRunnerloop);
     thread playerInputThread(playerInputLoop);
