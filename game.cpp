@@ -23,6 +23,10 @@ int currentPlayerID = 1;
 int settingsThemeSetId = 0;
 theme themeSet[5];
 
+int p1FigCount = 0;
+int p2FigCount = 0;
+
+bool debug = false;
 bool canMove = false;
 
 string makeSpace(int size)
@@ -35,22 +39,17 @@ string makeSpace(int size)
     return res;
 }
 
-void ghostPathColiderCheck()
+int checkColision(int x, int y)
 {
-    for (int i = 0; i < 8; i++)
+    if (p1Fig[y][x] != 'E')
     {
-        for (int j = 0; j < 8; j++)
-        {
-            if (ghostPath[i][j] && p1Fig[i][j] != 'E')  //Player 1 on path
-            {
-                ghostPath[i][j] = false;
-            }
-            if (ghostPath[i][j] && p2Fig[i][j] != 'E')  //Player 2 on path
-            {
-                ghostPath[i][j]= false;
-            }
-        }
+        return 1;
     }
+    if (p2Fig[y][x] != 'E')
+    {
+        return 2;
+    }
+    return 0;
 }
 
 void clearGhostPath()
@@ -64,6 +63,29 @@ void clearGhostPath()
     }
 }
 
+void deleteOverlays()
+{
+    for (int x = 0; x < 8; x++)
+    {
+        for (int y = 0; y < 8; y++)
+        {
+            if (p1Fig[y][x] != 'E' && p2Fig[y][x] != 'E')
+            {
+                if (currentPlayerID == 1)   //If player 1 was last player
+                {
+                    p2Fig[y][x] = 'E';
+                    p2FigCount--;
+                }
+                else    //If player 2 was last player
+                {
+                    p1Fig[y][x] = 'E';
+                    p1FigCount--;
+                }
+            }
+        }
+    }
+}
+
 void setGhostPath(int x , int y, int player)
 {
     if (player == 1)    //Player 1 
@@ -71,14 +93,24 @@ void setGhostPath(int x , int y, int player)
         switch (p1Fig[y][x])
         {
         case 'P':
-            if (y - 1 >= 0)
+            if (y - 1 >= 0 && checkColision(x, y - 1) == 0)
             {
                 ghostPath[y-1][x] = true;
+                if (y - 2 >= 0 && checkColision(x, y - 2) == 0)
+                {
+                    ghostPath[y-2][x] = true;
+                }
             }
-            if (y - 2 >= 0)
+            if (y - 1 >= 0 && x - 1 >= 0 && checkColision(x - 1, y - 1) == 2)
             {
-                ghostPath[y-2][x] = true;
+                ghostPath[y - 1][x - 1] = true;
             }
+            if (y - 1 >= 0 && x + 1 <= 7 && checkColision(x + 1, y - 1) == 2)
+            {
+                ghostPath[y - 1][x + 1] = true;
+            }
+            
+            
             canMove = true;
             break;
 
@@ -154,13 +186,21 @@ void setGhostPath(int x , int y, int player)
         switch (p2Fig[y][x])
         {
         case 'P':
-            if (y + 1 <= 7)
+            if (y + 1 <= 7 && checkColision(x, y + 1) == 0)
             {
                 ghostPath[y+1][x] = true;
+                if (y + 2 <= 7 && checkColision(x, y + 2) == 0)
+                {
+                    ghostPath[y+2][x] = true;
+                }
             }
-            if (y + 2 <= 7)
+            if (y + 1 >= 0 && x - 1 >= 0 && checkColision(x - 1, y + 1) == 1)
             {
-                ghostPath[y+2][x] = true;
+                ghostPath[y + 1][x - 1] = true;
+            }
+            if (y + 1 >= 0 && x + 1 <= 7 && checkColision(x + 1, y + 1) == 1)
+            {
+                ghostPath[y + 1][x + 1] = true;
             }
             canMove = true;
             break;
@@ -232,7 +272,6 @@ void setGhostPath(int x , int y, int player)
             break;
         }
     }
-    ghostPathColiderCheck();
 }
 
 void renderBoard(bool renderPath, int themeID)    //Render board
@@ -286,6 +325,16 @@ void renderBoard(bool renderPath, int themeID)    //Render board
         {
             cout << makeSpace(6) << "Current player: " << currentPlayerID;
         }
+        if (i == 5)
+        {
+            cout << makeSpace(6) << "Player 1 fig left: " << p1FigCount;
+        }
+        if (i == 6)
+        {
+            cout << makeSpace(6) << "Player 2 fig left: " << p2FigCount;
+        }
+        
+        
         cout << endl;
         for (int j = 0; j < 8; j++)
         {
@@ -396,15 +445,24 @@ void movePiece(int x, int y, int player)
 void getCOFromInput(int player, bool playerMove)  //Get coordinates from keyboard input
 {
     string selectedFigXY;
-    cin >> selectedFigXY;
+    if (debug == 0)
+    {
+        cin >> selectedFigXY;
+    }
     if (playerMove && canMove)
     {
-        //selectedFigXY = "e2";
+        if (debug == 1)
+        {
+            selectedFigXY = "e3";
+        }
         movePiece(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
     }
     else
     {
-        //selectedFigXY = "e1";
+        if (debug == 1)
+        {
+            selectedFigXY = "e2";
+        }
         playerPointer[0] = inputTranslator(selectedFigXY[0], true);
         playerPointer[1] = inputTranslator(selectedFigXY[1], false);
         setGhostPath(inputTranslator(selectedFigXY[0], true), inputTranslator(selectedFigXY[1], false), player);
@@ -433,6 +491,7 @@ void playerInputLoop()
         getCOFromInput(currentPlayerID, true);
         cin.get();
         clearGhostPath();
+        deleteOverlays();   //Check if scored
         if (currentPlayerID == 2)
         {
             currentPlayerID = 1;
@@ -440,6 +499,24 @@ void playerInputLoop()
         else
         {
             currentPlayerID = 2;
+        }
+    }
+}
+
+void countPieces()
+{
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (p1Fig[i][j] != 'E')
+            {
+                p1FigCount++;
+            }
+            if (p2Fig[i][j] != 'E')
+            {
+                p2FigCount++;
+            }
         }
     }
 }
@@ -489,6 +566,8 @@ void initGame()
     p2Fig[0][5] = 'B';
     p2Fig[0][3] = 'Q';
     p2Fig[0][4] = 'K';
+
+    countPieces();  //Count pieces for UI
 }
 
 int main()
