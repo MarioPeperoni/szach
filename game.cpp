@@ -35,6 +35,24 @@ string makeSpace(int size)
     return res;
 }
 
+void ghostPathColiderCheck()
+{
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (ghostPath[i][j] && p1Fig[i][j] != 'E')  //Player 1 on path
+            {
+                ghostPath[i][j] = false;
+            }
+            if (ghostPath[i][j] && p2Fig[i][j] != 'E')  //Player 2 on path
+            {
+                ghostPath[i][j]= false;
+            }
+        }
+    }
+}
+
 void clearGhostPath()
 {
     for (int i = 0; i < 8; i++)
@@ -214,6 +232,7 @@ void setGhostPath(int x , int y, int player)
             break;
         }
     }
+    ghostPathColiderCheck();
 }
 
 void renderBoard(bool renderPath, int themeID)    //Render board
